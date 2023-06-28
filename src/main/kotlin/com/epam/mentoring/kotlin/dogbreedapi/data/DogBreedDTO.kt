@@ -5,7 +5,7 @@ import java.util.*
 class DogBreedDTO (
     var breed: String,
     var subBreed: String,
-    var image: ByteArray) {
+    var image: String) {
     var id: String = ""
     var created: Date = Date()
     var modified: Date = Date()

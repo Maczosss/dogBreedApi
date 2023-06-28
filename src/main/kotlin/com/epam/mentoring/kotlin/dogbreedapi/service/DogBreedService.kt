@@ -36,9 +36,6 @@ class DogBreedService {
         return repository.findAllBreedsWhereThereAreNoSubBreeds().map { DogBreedDTO(it) }
     }
 
-    fun <K, V> MutableMap<K, List<V>>.toDogBreed(key: String, value: List<V>) =
-        DogBreedDTO(breed = key, subBreed = value.joinToString(", "), byteArrayOf())
-
     fun getOnlySubBreeds(): Iterable<String> {
         return repository.getOnlySubBreeds()
     }
@@ -47,27 +44,16 @@ class DogBreedService {
         return repository.getBreedsSubBreeds(breed)
     }
 
-    fun getPicture(breed: String): ResponseEntity<ByteArray> {
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.IMAGE_JPEG
-        val breedFromDb = repository.getBreedByName(breed)
-
-        return if (breedFromDb.image.isNotEmpty()) {
-            ResponseEntity(breedFromDb.image, headers, HttpStatus.OK)
-        } else {
-            val updatedBreed = apiClient.getPicture(breed)
-//            repository.save(updatedBreed)
-            ResponseEntity<ByteArray>(updatedBreed.image, headers, HttpStatus.OK)
-        }
-    }
-
     suspend fun getBreedPicture(breed: String): ResponseEntity<ByteArray> {
         val headers = HttpHeaders()
         headers.contentType = MediaType.IMAGE_JPEG
         val dbBreed = repository.getBreedByName(breed)
         return if (dbBreed.image.isNotEmpty()) {
-            ResponseEntity<ByteArray>(dbBreed.image, headers, HttpStatus.OK)
+            ResponseEntity<ByteArray>(apiClient.getBreedPictureFromExternalApi(dbBreed.image), headers, HttpStatus.OK)
         } else
-            ResponseEntity<ByteArray>(apiClient.getBreedPicture(breed), headers, HttpStatus.OK)
+            ResponseEntity<ByteArray>(apiClient.getBreedPictureFromExternalApiAndSaveNewLinkInDB(breed), headers, HttpStatus.OK)
     }
+
+    fun <K, V> MutableMap<K, List<V>>.toDogBreed(key: String, value: List<V>) =
+        DogBreedDTO(breed = key, subBreed = value.joinToString(", "), "")
 }

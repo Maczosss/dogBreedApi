@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
-import org.springframework.web.reactive.function.client.awaitExchange
 
 @Service
 class DogBreedApiClient {
@@ -41,17 +40,26 @@ class DogBreedApiClient {
         return result
     }
 
-    suspend fun getBreedPicture(breed: String): ByteArray {
+    suspend fun getBreedPictureFromExternalApiAndSaveNewLinkInDB(breed: String): ByteArray {
         val webClient = WebClient.create()
-
         val listOfLinks = webClient.get().uri("https://dog.ceo/api/breed/${breed}/images")
-            .awaitExchange().awaitBody<BasicWebClientMessageResponse>()
+            .retrieve()
+            .awaitBody<BasicWebClientMessageResponse>()
+        //save link to database
+        val newDogBreed = repository.getBreedByName(breed)
+        newDogBreed.image = listOfLinks.message[0]
 
+        repository.save(newDogBreed)
         return webClient.get().uri(listOfLinks.message[0])
-            .awaitExchange().awaitBody<ByteArray>()
+            .retrieve().awaitBody<ByteArray>()
     }
 
-    //wrong
+    suspend fun getBreedPictureFromExternalApi(url: String): ByteArray {
+        return WebClient.create().get().uri(url)
+            .retrieve().awaitBody<ByteArray>()
+    }
+
+    //wrong approach
     fun getPicture(breed: String): DogBreed {
         val webClient = WebClient.create()
         val url = "https://dog.ceo/api/breed/${breed}/images"
@@ -73,7 +81,7 @@ class DogBreedApiClient {
                 responseMono2.subscribe{imageResponse->
                     if (imageResponse.isNotEmpty()){
                         var dogBreed = repository.getBreedByName(breed)
-                        dogBreed.image = imageResponse
+//                        dogBreed.image = imageResponse
                         dogBreed = repository.save(dogBreed)
                     }
                 }

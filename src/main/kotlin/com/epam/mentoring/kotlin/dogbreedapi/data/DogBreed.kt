@@ -28,7 +28,7 @@ import java.util.*
         var id: String = "",
         var breed: String,
         var subBreed: String,
-        var image: ByteArray = byteArrayOf(),
+        var image: String = "",
         @CreationTimestamp
         var created: Date = Date(),
         @UpdateTimestamp
@@ -36,6 +36,6 @@ import java.util.*
     ){
 
         constructor(): this(
-            "","","", byteArrayOf()
+            "","","", ""
         )
     }
