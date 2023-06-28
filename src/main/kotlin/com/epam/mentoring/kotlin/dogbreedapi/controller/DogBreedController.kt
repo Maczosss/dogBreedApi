@@ -42,6 +42,13 @@ class DogBreedController {
         return service.getBreedsSubBreeds(breed)
     }
 
+    @GetMapping(
+        value = ["/getPicture/{breed}"]
+    )
+    suspend fun getBreedPicture(@PathVariable breed: String): ResponseEntity<ByteArray>{
+        return service.getBreedPicture(breed)
+    }
+
 //    @GetMapping(
 //        value = ["/picture/"],
 //        produces = [MediaType.APPLICATION_JSON_VALUE]
@@ -55,13 +62,5 @@ class DogBreedController {
 //        return service.getPicture(breed)
 ////        return apiClient.getPicture().toString()
 //    }
-
-    @GetMapping(
-        value = ["/getPicture/{breed}"]
-    )
-    suspend fun getBreedPicture2(@PathVariable breed: String): ResponseEntity<ByteArray>{
-        return service.getBreedPicture(breed)
-    }
-
 
 }
