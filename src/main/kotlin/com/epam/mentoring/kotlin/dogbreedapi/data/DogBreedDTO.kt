@@ -7,8 +7,8 @@ class DogBreedDTO (
     var subBreed: String,
     var image: String) {
     var id: String = ""
-    var created: Date = Date()
-    var modified: Date = Date()
+//    var created: Date = Date()
+//    var modified: Date = Date()
 
     constructor(dogBreed: DogBreed) : this(
         dogBreed.breed,
@@ -16,7 +16,7 @@ class DogBreedDTO (
         dogBreed.image
     ) {
         id = dogBreed.id
-        created = dogBreed.created
+//        created = dogBreed.created
     }
 
     fun getSubBreeds() = subBreed.split(",").map { it.trim() }.toList()

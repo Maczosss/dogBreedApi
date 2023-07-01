@@ -20,25 +20,25 @@ class DogBreedController {
     @GetMapping(
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
-    fun getAllDogBreeds() = service.getBreeds().map { DogBreedResponse(it.breed, it.getSubBreeds(), it.image) }
+    suspend fun getAllDogBreeds() = service.getBreeds().map { DogBreedResponse(it.breed, it.getSubBreeds(), it.image) }
 
     @GetMapping(
         value = ["/nonSubBreed"],
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
-    fun getBreedsWithNoSubBreeds() = service.getBreedsWithNoSubBreeds()
+    suspend fun getBreedsWithNoSubBreeds() = service.getBreedsWithNoSubBreeds()
 
     @GetMapping(
         value = ["/subBreeds"],
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
-    fun getOnlySubBreeds() = service.getOnlySubBreeds()
+    suspend fun getOnlySubBreeds() = service.getOnlySubBreeds()
 
     @GetMapping(
         value = ["/subBreedsForSpecificBreed/{breed}"],
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
-    fun getBreedsSubBreeds(@PathVariable(name = "breed") breed: String): Iterable<String> {
+    suspend fun getBreedsSubBreeds(@PathVariable(name = "breed") breed: String): Iterable<String> {
         return service.getBreedsSubBreeds(breed)
     }
 

@@ -4,6 +4,8 @@ import com.epam.mentoring.kotlin.dogbreedapi.data.DogBreed
 import com.epam.mentoring.kotlin.dogbreedapi.data.DogBreedDTO
 import com.epam.mentoring.kotlin.dogbreedapi.data_populator.DogBreedApiClient
 import com.epam.mentoring.kotlin.dogbreedapi.repository.DogBreedRepository
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.*
 import org.springframework.stereotype.Component
@@ -11,13 +13,13 @@ import org.springframework.stereotype.Component
 @Component
 class DogBreedService {
 
-    @Autowired
+    @Autowired(required = true)
     lateinit var repository: DogBreedRepository
 
     @Autowired
     lateinit var apiClient: DogBreedApiClient
 
-    fun save(breedsToSave: Map<String, List<String>>) {
+    suspend fun saveMapOfBreeds(breedsToSave: Map<String, List<String>>) {
         repository.saveAll(breedsToSave.map {
             DogBreed(
                 breed = it.key,
@@ -27,21 +29,21 @@ class DogBreedService {
     }
 
     @org.springframework.cache.annotation.Cacheable("breeds")
-    fun getBreeds(): Iterable<DogBreedDTO> {
-        return repository.findAll().map { DogBreedDTO(it) }
+    suspend fun getBreeds(): Iterable<DogBreedDTO> {
+        return repository.findAll().map { DogBreedDTO(it) }.toList()
     }
 
     @org.springframework.cache.annotation.Cacheable("nonSubBreed")
-    fun getBreedsWithNoSubBreeds(): Iterable<DogBreedDTO> {
-        return repository.findAllBreedsWhereThereAreNoSubBreeds().map { DogBreedDTO(it) }
+    suspend fun getBreedsWithNoSubBreeds(): Iterable<DogBreedDTO> {
+        return repository.findAllBreedsWhereThereAreNoSubBreeds().map { DogBreedDTO(it) }.toList()
     }
 
-    fun getOnlySubBreeds(): Iterable<String> {
-        return repository.getOnlySubBreeds()
+    suspend fun getOnlySubBreeds(): Iterable<String> {
+        return repository.getOnlySubBreeds().toList()
     }
 
-    fun getBreedsSubBreeds(breed: String): Iterable<String> {
-        return repository.getBreedsSubBreeds(breed)
+    suspend fun getBreedsSubBreeds(breed: String): Iterable<String> {
+        return repository.getBreedsSubBreeds(breed).toList()
     }
 
     suspend fun getBreedPicture(breed: String): ResponseEntity<ByteArray> {
