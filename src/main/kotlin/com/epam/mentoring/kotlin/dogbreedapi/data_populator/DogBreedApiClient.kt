@@ -14,7 +14,7 @@ class DogBreedApiClient {
     @Autowired
     private lateinit var repository: DogBreedRepository
 
-    suspend fun populateDogBreedTable(){
+    suspend fun populateDogBreedTable() {
         val webClient = WebClient.create()
         val dbEntries = webClient.get().uri("https://dog.ceo/api/breeds/list/all")
             .retrieve()
@@ -31,93 +31,26 @@ class DogBreedApiClient {
 
 
     private fun Map.Entry<String, List<String>>.toDogBreed(): DogBreed =
-        DogBreed(breed = key.toString(), subBreed = value.joinToString(separator = ", "))
-
-//    fun getBreeds(): DogBreedApiResponse {
-//        val webClient = WebClient.create()
-//        val url = "https://dog.ceo/api/breeds/list/all"
-//        var dbBreeds: List<DogBreed>
-//        var result: Map<String, List<String>> = mutableMapOf()
-//        var finalResult: DogBreedApiResponse = DogBreedApiResponse()
-//
-//        val responseMono = webClient.get()
-//            .uri(url)
-//            .retrieve()
-//            .bodyToMono(DogBreedApiResponse::class.java)
-//
-//        responseMono.subscribe { dogApiResponse ->
-//            if (dogApiResponse.status == "success") {
-//                result = dogApiResponse.message
-//                finalResult = dogApiResponse
-//                dbBreeds = dogApiResponse.message.map {
-//                    DogBreed(
-//                        breed = it.key,
-//                        subBreed = it.value.joinToString(", ")
-//                    )
-//                }
-//                repository.saveAll(dbBreeds)
-//            }
-//        }
-//        return finalResult
-//    }
+        DogBreed(breed = key.toString(), subBreed = value.joinToString(separator = ", "), image = null)
 
     suspend fun getBreedPictureFromExternalApiAndSaveNewLinkInDB(breed: String): ByteArray {
         val webClient = WebClient.create()
         val listOfLinks = webClient.get().uri("https://dog.ceo/api/breed/${breed}/images")
             .retrieve()
             .awaitBody<BasicWebClientMessageResponse>()
+
         //save link to database
         val newDogBreed = repository.getBreedByName(breed)
-        newDogBreed.image = listOfLinks.message[0]
-
-//        repository.save(newDogBreed)
-        return webClient.get().uri(listOfLinks.message[0])
+        newDogBreed.image = webClient.get().uri(listOfLinks.message[0])
             .retrieve().awaitBody<ByteArray>()
+        repository.update(newDogBreed.id, newDogBreed.image!!)
+        return newDogBreed.image!!
     }
 
     suspend fun getBreedPictureFromExternalApi(url: String): ByteArray {
         return WebClient.create().get().uri(url)
             .retrieve().awaitBody<ByteArray>()
     }
-
-    //wrong approach
-//    fun getPicture(breed: String): DogBreed {
-//        val webClient = WebClient.create()
-//        val url = "https://dog.ceo/api/breed/${breed}/images"
-//        var result: List<String> = mutableListOf() // links for images
-//
-//        val responseMono = webClient.get()
-//            .uri(url)
-//            .retrieve()
-//            .bodyToMono(BasicWebClientMessageResponse::class.java)
-//
-//        responseMono.subscribe { dogApiResponse ->
-//            if (dogApiResponse.status == "success") {
-//                result = dogApiResponse.message
-//                val responseMono2 = webClient.get()
-//                    .uri(result[0])
-//                    .retrieve()
-//                    .bodyToMono(ByteArray::class.java)
-//
-//                responseMono2.subscribe{imageResponse->
-//                    if (imageResponse.isNotEmpty()){
-//                        var dogBreed = repository.getBreedByName(breed)
-////                        dogBreed.image = imageResponse
-//                        dogBreed = repository.save(dogBreed)
-//                    }
-//                }
-////                dbBreeds = dogApiResponse.message.map {
-////                    DogBreed(
-////                        breed = it.key,
-////                        subBreed = it.value.joinToString(", ")
-////                    )
-////                }
-////                repository.saveAll(dbBreeds)
-//            }
-//        }
-//        return DogBreed()
-//    }
-
 }
 
 

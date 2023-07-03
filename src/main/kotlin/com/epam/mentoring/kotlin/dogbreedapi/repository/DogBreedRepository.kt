@@ -17,25 +17,16 @@ interface DogBreedRepository : CoroutineCrudRepository<DogBreed, String> {
     )
     suspend fun isThereDogBreedTable(): Flow<Integer>
 
-    //    @Query("""CREATE TABLE `dog_breed` (
-//  `id` varchar(36) NOT NULL,
-//  `breed` varchar(255) DEFAULT NULL,
-//  `created` datetime(6) DEFAULT NULL,
-//  `image` varchar(255) DEFAULT NULL,
-//  `modified` datetime(6) DEFAULT NULL,
-//  `sub_breed` varchar(255) DEFAULT NULL,
-//  PRIMARY KEY (`id`)
-//) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci""")
     @Query(
         """CREATE TABLE `dog_breed` (
-  `id` varchar(255) NOT NULL,
-  `breed` varchar(255) DEFAULT NULL,
-  `created` datetime(6) DEFAULT NULL,
-  `image` varchar(255) DEFAULT NULL,
-  `modified` datetime(6) DEFAULT NULL,
-  `sub_breed` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"""
+        `id` varchar(255) NOT NULL,
+        `breed` varchar(255) DEFAULT NULL,
+        `created` datetime(6) DEFAULT NULL,
+        `image` LONGBLOB DEFAULT NULL,
+        `modified` datetime(6) DEFAULT NULL,
+        `sub_breed` varchar(255) DEFAULT NULL,
+        PRIMARY KEY (`id`)
+        )"""
     )
     suspend fun createDogBreedTable()
 
@@ -51,6 +42,10 @@ interface DogBreedRepository : CoroutineCrudRepository<DogBreed, String> {
     @Query("SELECT * FROM dog_breed WHERE breed = :breed LIMIT 1")
     suspend fun getBreedByName(breed: String): DogBreed
 
-//    @Query()
-//    suspend fun insert(breed: DogBreed): DogBreed
+    @Query("""
+    UPDATE dog_breed
+    SET image = :image
+    WHERE id = :id;
+    """)
+    suspend fun update(id: String, image: ByteArray)
 }

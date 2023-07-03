@@ -18,10 +18,6 @@ import java.util.*
 //    @Entity
     @Table(name = "dog_breed")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-//    @NamedQuery(
-//        name = "Note.findByTitle",
-//        query = "SELECT n FROM dog_breed n WHERE n.breed LIKE :breed"
-//    )
     class DogBreed(
 //        @Id
 //        @GeneratedValue(generator = "uuid2")
@@ -33,7 +29,7 @@ import java.util.*
         @Column(value = "sub_breed")
         var subBreed: String,
         @Column(value = "image")
-        var image: String = "",
+        var image: ByteArray?,
 //        @CreationTimestamp
 //        var created: Date = Date(),
 //        @UpdateTimestamp
@@ -41,11 +37,6 @@ import java.util.*
     ){
 
         constructor(): this(
-            "","","", ""
+            "","","", null
         )
-
-//        fun getId(): String{
-////            val result: Boolean = Objects.isNull(id)
-//            return if (Objects.isNull(id)) UUID.randomUUID().toString() else id!!
-//        }
     }

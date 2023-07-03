@@ -10,10 +10,6 @@ import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories
 @SpringBootApplication
 class DogBreedApiApplication
 
-suspend fun main(args: Array<String>) {
+fun main(args: Array<String>) {
 	runApplication<DogBreedApiApplication>(*args)
-
-//	coroutineScope {
-//		DogBreedDatabasePopulator().testPopulator()
-//	}
 }

@@ -32,16 +32,16 @@ class DogBreedDatabasePopulator {
     }
 
 
-    suspend fun testPopulator() = coroutineScope {
-        if (repository.findAll().toList().isEmpty()) {
-            val check = dogBreedApi.populateDogBreedTable()
-            if (check.message.isEmpty()) {
-                println("Failed to load database entries from api")
-            } else {
-                println("Successfully added entries to database")
-            }
-        }
-    }
+//    suspend fun testPopulator() = coroutineScope {
+//        if (repository.findAll().toList().isEmpty()) {
+//            val check = dogBreedApi.populateDogBreedTable()
+//            if (check.message.isEmpty()) {
+//                println("Failed to load database entries from api")
+//            } else {
+//                println("Successfully added entries to database")
+//            }
+//        }
+//    }
 
 //    companion object {
 //
