@@ -53,9 +53,21 @@ class DogBreedService {
         return if (dbBreed.image.isNotEmpty()) {
             ResponseEntity<ByteArray>(apiClient.getBreedPictureFromExternalApi(dbBreed.image), headers, HttpStatus.OK)
         } else
-            ResponseEntity<ByteArray>(apiClient.getBreedPictureFromExternalApiAndSaveNewLinkInDB(breed), headers, HttpStatus.OK)
+            ResponseEntity<ByteArray>(
+                apiClient.getBreedPictureFromExternalApiAndSaveNewLinkInDB(breed),
+                headers,
+                HttpStatus.OK
+            )
     }
 
     fun <K, V> MutableMap<K, List<V>>.toDogBreed(key: String, value: List<V>) =
-        DogBreedDTO(breed = key, subBreed = value.joinToString(", "), "")
+        DogBreed(breed = key, subBreed = value.joinToString(separator = ","))
+
+    suspend fun saveDogBreed(dogBreed: DogBreedDTO): HttpStatus {
+//        if (repository.getBreedByName(dogBreed.breed) != null) {
+//            return HttpStatus.METHOD_NOT_ALLOWED
+//        }
+        repository.save(DogBreed(breed = dogBreed.breed, subBreed = dogBreed.subBreed.joinToString(separator = ", ")))
+        return HttpStatus.OK
+    }
 }

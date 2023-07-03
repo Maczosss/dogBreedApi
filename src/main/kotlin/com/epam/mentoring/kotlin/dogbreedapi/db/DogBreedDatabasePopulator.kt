@@ -34,7 +34,7 @@ class DogBreedDatabasePopulator {
 
     suspend fun testPopulator() = coroutineScope {
         if (repository.findAll().toList().isEmpty()) {
-            val check = dogBreedApi.getBreeds()
+            val check = dogBreedApi.populateDogBreedTable()
             if (check.message.isEmpty()) {
                 println("Failed to load database entries from api")
             } else {

@@ -4,7 +4,7 @@ import java.util.*
 
 class DogBreedDTO (
     var breed: String,
-    var subBreed: String,
+    var subBreed: Array<String>,
     var image: String) {
     var id: String = ""
 //    var created: Date = Date()
@@ -12,12 +12,13 @@ class DogBreedDTO (
 
     constructor(dogBreed: DogBreed) : this(
         dogBreed.breed,
-        dogBreed.subBreed,
+        dogBreed.subBreed.split(",").toTypedArray(),
         dogBreed.image
     ) {
         id = dogBreed.id
 //        created = dogBreed.created
     }
 
-    fun getSubBreeds() = subBreed.split(",").map { it.trim() }.toList()
+//    fun getSubBreeds() = subBreed.split(",").map { it.trim() }.toList()
+    fun getSubBreeds() = subBreed
 }

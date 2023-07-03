@@ -1,26 +1,33 @@
 package com.epam.mentoring.kotlin.dogbreedapi.controller
 
+import com.epam.mentoring.kotlin.dogbreedapi.data.DogBreedDTO
 import com.epam.mentoring.kotlin.dogbreedapi.data_populator.DogBreedApiClient
 import com.epam.mentoring.kotlin.dogbreedapi.service.DogBreedService
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/breeds")
-class DogBreedController {
+class DogBreedController(private val service: DogBreedService) {
 
-    @Autowired
-    lateinit var service: DogBreedService
+
+
+    @PostMapping(
+        value = ["/add"],
+        consumes = [MediaType.APPLICATION_JSON_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE]
+    )
+    suspend fun addNewBreed(@RequestBody breed: DogBreedDTO): ResponseEntity<DogBreedDTO>{
+       return ResponseEntity(service.saveDogBreed(breed))
+    }
 
     @GetMapping(
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
-    suspend fun getAllDogBreeds() = service.getBreeds().map { DogBreedResponse(it.breed, it.getSubBreeds(), it.image) }
+    suspend fun getAllDogBreeds() = service.getBreeds().map { DogBreedResponse(it.breed, it.getSubBreeds().toList(), it.image) }
 
     @GetMapping(
         value = ["/nonSubBreed"],

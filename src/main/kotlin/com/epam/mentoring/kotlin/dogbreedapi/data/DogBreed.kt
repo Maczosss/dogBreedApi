@@ -15,7 +15,7 @@ import org.hibernate.annotations.UpdateTimestamp
 import java.util.*
 
 
-    @Entity
+//    @Entity
     @Table(name = "dog_breed")
     @JsonInclude(JsonInclude.Include.NON_NULL)
 //    @NamedQuery(
@@ -23,11 +23,11 @@ import java.util.*
 //        query = "SELECT n FROM dog_breed n WHERE n.breed LIKE :breed"
 //    )
     class DogBreed(
-        @Id
-        @GeneratedValue(generator = "uuid2")
-        @GenericGenerator(name = "uuid2", strategy = "uuid2")
+//        @Id
+//        @GeneratedValue(generator = "uuid2")
+//        @GenericGenerator(name = "uuid2", strategy = "uuid2")
         @Column(value = "id")
-        var id: String = "",
+        var id: String = UUID.randomUUID().toString(),
         @Column(value = "breed")
         var breed: String,
         @Column(value = "sub_breed")
@@ -43,4 +43,9 @@ import java.util.*
         constructor(): this(
             "","","", ""
         )
+
+//        fun getId(): String{
+////            val result: Boolean = Objects.isNull(id)
+//            return if (Objects.isNull(id)) UUID.randomUUID().toString() else id!!
+//        }
     }

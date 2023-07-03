@@ -16,21 +16,12 @@ class DatabaseInitializer(private val dogBreedApi: DogBreedApiClient, private va
         return ApplicationRunner {
             runBlocking {
                 if (repository.isThereDogBreedTable().toList()[0].toInt() == 0) {
-                    println("There no table ")
+                    println("There is no table, creating... ")
                     repository.createDogBreedTable()
                 }
                 if (repository.findAll().toList().isEmpty()) {
-                    val breedsResponse = dogBreedApi.getBreeds()
-
-                    if (breedsResponse.status == "success") {
-                        val dbBreeds = breedsResponse.message.map { (breed, subBreeds) ->
-                            DogBreed(
-                                breed = breed,
-                                subBreed = subBreeds.joinToString(", ")
-                            )
-                        }
-                        repository.saveAll(dbBreeds)
-                    }
+                    println("Table 'dog_breed' is empty, started populating...")
+                    dogBreedApi.populateDogBreedTable()
                 }
                 println("Database is populated")
             }
