@@ -10,7 +10,9 @@ class DogBreedDTO (
 
     constructor(dogBreed: DogBreed) : this(
         dogBreed.breed,
-        dogBreed.subBreed.split(",").toTypedArray(),
+        dogBreed.subBreed.split(",")
+            .map { it.trim() }
+            .toTypedArray(),
         dogBreed.image
     ) {
         id = dogBreed.id

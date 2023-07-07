@@ -2,9 +2,7 @@ package com.epam.mentoring.kotlin.dogbreedapi.repository
 
 import com.epam.mentoring.kotlin.dogbreedapi.data.DogBreed
 import kotlinx.coroutines.flow.Flow
-//import org.springframework.data.jpa.repository.Query
 import org.springframework.data.r2dbc.repository.Query
-import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 
 

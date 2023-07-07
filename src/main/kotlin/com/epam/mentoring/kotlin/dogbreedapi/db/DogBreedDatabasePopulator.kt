@@ -2,66 +2,28 @@ package com.epam.mentoring.kotlin.dogbreedapi.db
 
 import com.epam.mentoring.kotlin.dogbreedapi.data_populator.DogBreedApiClient
 import com.epam.mentoring.kotlin.dogbreedapi.repository.DogBreedRepository
-import jakarta.annotation.PostConstruct
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.toList
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Component
+import kotlinx.coroutines.runBlocking
+import org.springframework.boot.ApplicationRunner
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 
-@Component
-class DogBreedDatabasePopulator {
-
-    @Autowired
-    lateinit var dogBreedApi: DogBreedApiClient
-
-    @Autowired
-    lateinit var repository: DogBreedRepository
-
-    @PostConstruct
-    fun populateDatabase(){
-//        if(repository.findAll().count()==0){
-//            val check = dogBreedApi.getBreeds()
-//            if(check.isEmpty()){
-//                println("Failed to load database entries from api")
-//            }else{
-//                println("Successfully added entries to database")
-//            }
-//        }
-//        testPopulator()
-//        BeanFactoryPostProcessor(BeanFa)
+@Configuration
+class DogBreedDatabasePopulator(private val dogBreedApi: DogBreedApiClient, private val repository: DogBreedRepository) {
+    @Bean
+    fun initializeDatabase(): ApplicationRunner {
+        return ApplicationRunner {
+            runBlocking {
+                if (repository.isThereDogBreedTable().toList()[0].toInt() == 0) {
+                    println("There is no table, creating... ")
+                    repository.createDogBreedTable()
+                }
+                if (repository.findAll().toList().isEmpty()) {
+                    println("Table 'dog_breed' is empty, started populating...")
+                    dogBreedApi.populateDogBreedTable()
+                }
+                println("Database is populated")
+            }
+        }
     }
-
-
-//    suspend fun testPopulator() = coroutineScope {
-//        if (repository.findAll().toList().isEmpty()) {
-//            val check = dogBreedApi.populateDogBreedTable()
-//            if (check.message.isEmpty()) {
-//                println("Failed to load database entries from api")
-//            } else {
-//                println("Successfully added entries to database")
-//            }
-//        }
-//    }
-
-//    companion object {
-//
-//        @Autowired
-//        lateinit var repository: DogBreedRepository
-//
-//        @Autowired
-//        lateinit var dogBreedApi: DogBreedApiClient
-//        suspend fun test() =  coroutineScope {
-//                if (repository.findAll().toList().isEmpty()) {
-//                val check = dogBreedApi.getBreeds()
-//                if (check.isEmpty()) {
-//                    println("Failed to load database entries from api")
-//                } else {
-//                    println("Successfully added entries to database")
-//                }
-//            }
-//            else{
-//                println("got data from db")
-//                }
-//        }
-//    }
 }

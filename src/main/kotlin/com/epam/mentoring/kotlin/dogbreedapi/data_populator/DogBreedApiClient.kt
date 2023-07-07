@@ -14,9 +14,11 @@ class DogBreedApiClient {
     @Autowired
     private lateinit var repository: DogBreedRepository
 
+    private val getAllBreedsApiUrl = "https://dog.ceo/api/breeds/list/all"
+
     suspend fun populateDogBreedTable() {
         val webClient = WebClient.create()
-        val dbEntries = webClient.get().uri("https://dog.ceo/api/breeds/list/all")
+        val dbEntries = webClient.get().uri(getAllBreedsApiUrl)
             .retrieve()
             .awaitBody<DogBreedApiResponse>()
 
@@ -31,20 +33,22 @@ class DogBreedApiClient {
 
 
     private fun Map.Entry<String, List<String>>.toDogBreed(): DogBreed =
-        DogBreed(breed = key.toString(), subBreed = value.joinToString(separator = ", "), image = null)
+        DogBreed(breed = key, subBreed = value.joinToString(separator = ", "), image = null)
 
-    suspend fun getBreedPictureFromExternalApiAndSaveNewLinkInDB(breed: String): ByteArray {
+    suspend fun getBreedPictureFromExternalApiAndSaveNewLinkInDB(breed: String): ByteArray? {
         val webClient = WebClient.create()
         val listOfLinks = webClient.get().uri("https://dog.ceo/api/breed/${breed}/images")
             .retrieve()
             .awaitBody<BasicWebClientMessageResponse>()
 
-        //save link to database
+        //update image in database
         val newDogBreed = repository.getBreedByName(breed)
-        newDogBreed.image = webClient.get().uri(listOfLinks.message[0])
-            .retrieve().awaitBody<ByteArray>()
+
+        newDogBreed.image = getBreedPictureFromExternalApi(listOfLinks.message[0])
+
         repository.update(newDogBreed.id, newDogBreed.image!!)
-        return newDogBreed.image!!
+
+        return newDogBreed.image
     }
 
     suspend fun getBreedPictureFromExternalApi(url: String): ByteArray {

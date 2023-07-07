@@ -6,8 +6,9 @@ import io.r2dbc.spi.ConnectionFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.io.FileInputStream
+import java.io.FileNotFoundException
 import java.time.ZoneId
-import java.util.Properties
+import java.util.*
 
 
 @Configuration
@@ -16,8 +17,13 @@ class DatabaseConfig {
     @Bean
     fun connectionFactory(): ConnectionFactory? {
         val props = Properties()
-        props.load(
-            FileInputStream("PATH_TO_PROPERTIES"))
+        try {
+            props.load(
+                FileInputStream("PATH_TO_PROPERTIES")
+            )
+        }catch(e: FileNotFoundException){
+            println("Could not find application.properties file.")
+        }
         return MySqlConnectionFactory.from(
             MySqlConnectionConfiguration.builder()
                 .host(props.getProperty("db.host"))

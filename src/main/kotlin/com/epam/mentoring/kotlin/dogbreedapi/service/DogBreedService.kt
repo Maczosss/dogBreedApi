@@ -11,13 +11,10 @@ import org.springframework.http.*
 import org.springframework.stereotype.Component
 
 @Component
-class DogBreedService {
+class DogBreedService(
+    private val repository: DogBreedRepository,
+    private val apiClient: DogBreedApiClient) {
 
-    @Autowired(required = true)
-    lateinit var repository: DogBreedRepository
-
-    @Autowired
-    lateinit var apiClient: DogBreedApiClient
 
     suspend fun saveMapOfBreeds(breedsToSave: Map<String, List<String>>) {
         repository.saveAll(breedsToSave.map {
@@ -30,7 +27,7 @@ class DogBreedService {
     }
 
     @org.springframework.cache.annotation.Cacheable("breeds")
-    suspend fun getBreeds(): Iterable<DogBreedDTO> {
+    suspend fun getBreeds(): List<DogBreedDTO> {
         return repository.findAll().map { DogBreedDTO(it) }.toList()
     }
 
@@ -65,5 +62,9 @@ class DogBreedService {
 
         repository.save(DogBreed(breed = dogBreed.breed, subBreed = dogBreed.subBreed.joinToString(separator = ", "), image = null))
         return HttpStatus.OK
+    }
+
+    suspend fun add(breed: DogBreed){
+        repository.save(breed)
     }
 }
