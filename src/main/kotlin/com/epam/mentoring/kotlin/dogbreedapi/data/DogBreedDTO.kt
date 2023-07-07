@@ -1,23 +1,22 @@
 package com.epam.mentoring.kotlin.dogbreedapi.data
 
-import java.util.*
-
 class DogBreedDTO (
     var breed: String,
-    var subBreed: String,
-    var image: String) {
+    var subBreed: Array<String>,
+    var image: ByteArray?) {
     var id: String = ""
-    var created: Date = Date()
-    var modified: Date = Date()
+//    var created: Date = Date()
+//    var modified: Date = Date()
 
     constructor(dogBreed: DogBreed) : this(
         dogBreed.breed,
-        dogBreed.subBreed,
+        dogBreed.subBreed.split(",")
+            .map { it.trim() }
+            .toTypedArray(),
         dogBreed.image
     ) {
         id = dogBreed.id
-        created = dogBreed.created
     }
 
-    fun getSubBreeds() = subBreed.split(",").map { it.trim() }.toList()
+    fun getSubBreeds() = subBreed
 }
