@@ -23,16 +23,11 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
-    implementation("org.springframework:spring-context")
-    implementation("org.springframework:spring-aop")
-
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
     implementation("io.asyncer:r2dbc-mysql:1.0.2")
 
-    implementation("org.hibernate:hibernate-validator:8.0.1.Final")
     implementation("io.jsonwebtoken:jjwt:0.9.1")
 
     implementation("org.springframework.boot:spring-boot-starter-cache:3.1.1")
