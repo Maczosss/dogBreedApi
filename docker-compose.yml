@@ -1,0 +1,14 @@
+services:
+  db:
+    image: mysql
+    environment:
+      MYSQL_DATABASE: breed_db
+      MYSQL_ROOT_PASSWORD: example_pass
+    ports:
+     - "9091:3306"
+  phpMyAdmin:
+    image: phpmyadmin
+    environment:
+      PMA_ARBITRARY: 1
+    ports:
+      - "9090:80"

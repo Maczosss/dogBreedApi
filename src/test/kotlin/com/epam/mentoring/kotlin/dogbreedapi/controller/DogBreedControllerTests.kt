@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 
@@ -199,18 +200,14 @@ class DogBreedControllerTests {
                 ]
             """.trimIndent()
             )
-        webClient.get().uri("/breeds/subBreedsForSpecificBreed/{breed}", " ")
+        val errorMessage = webClient.get().uri("/breeds/subBreedsForSpecificBreed/{breed}", " ")
             .exchange()
-            .expectStatus().isOk
-            .expectHeader().contentType(MediaType.APPLICATION_JSON)
-            .expectBody()
-            .json(
-                """
-                [
-                "nowasub"
-                ]
-            """.trimIndent()
-            )
+            .expectStatus().isBadRequest
+            .expectHeader().contentType("text/plain;charset=UTF-8")
+            .expectBody(String::class.java)
+            .returnResult().responseBody
+
+        Assertions.assertTrue(errorMessage == "Wrong parameter submitted")
     }
 
     @Test
@@ -229,15 +226,16 @@ class DogBreedControllerTests {
             .expectBody(ByteArray::class.java)
             .returnResult().responseBody
 
-        val expectedNull = webClient.get().uri("/breeds/getPicture/{breed}", "dummyBreed3")
+        val errorMessage = webClient.get().uri("/breeds/getPicture/{breed}", "dummyBreed3")
             .exchange()
-            .expectStatus().isOk
-            .expectHeader().contentType(MediaType.IMAGE_JPEG)
-            .expectBody(ByteArray::class.java)
+            .expectStatus().isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
+            .expectHeader().contentType("text/plain;charset=UTF-8")
+            .expectBody(String::class.java)
             .returnResult().responseBody
 
         Assertions.assertTrue(expectedByteArray contentEquals byteArrayOf(5, 4, 3, 2, 1))
         Assertions.assertTrue(expectedByteArray2 contentEquals byteArrayOf(1, 2, 3, 4, 5))
-        Assertions.assertNull(expectedNull)
+        Assertions.assertTrue(errorMessage == "No picture was returned from external api, and nothing was found inside database.")
+
     }
 }

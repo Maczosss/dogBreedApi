@@ -3,12 +3,15 @@ package com.epam.mentoring.kotlin.dogbreedapi.service
 import com.epam.mentoring.kotlin.dogbreedapi.data.DogBreed
 import com.epam.mentoring.kotlin.dogbreedapi.data.DogBreedDTO
 import com.epam.mentoring.kotlin.dogbreedapi.data_populator.DogBreedApiClient
+import com.epam.mentoring.kotlin.dogbreedapi.error.DatabaseSaveException
+import com.epam.mentoring.kotlin.dogbreedapi.error.NoBreedReturnedFromDatabaseException
+import com.epam.mentoring.kotlin.dogbreedapi.error.NoPictureReturnedFromExternalSource
 import com.epam.mentoring.kotlin.dogbreedapi.repository.DogBreedRepository
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.*
 import org.springframework.stereotype.Component
+import java.lang.IllegalArgumentException
 
 @Component
 class DogBreedService(
@@ -28,43 +31,73 @@ class DogBreedService(
 
     @org.springframework.cache.annotation.Cacheable("breeds")
     suspend fun getBreeds(): List<DogBreedDTO> {
-        return repository.findAll().map { DogBreedDTO(it) }.toList()
+        val result = repository.findAll().map { DogBreedDTO(it) }.toList()
+        if (result.isNotEmpty()){
+            return result
+        }
+        throw NoBreedReturnedFromDatabaseException("Breed was not found in database")
     }
 
     @org.springframework.cache.annotation.Cacheable("nonSubBreed")
     suspend fun getBreedsWithNoSubBreeds(): Iterable<DogBreedDTO> {
-        return repository.findAllBreedsWhereThereAreNoSubBreeds().map { DogBreedDTO(it) }.toList()
+        val result = repository.findAllBreedsWhereThereAreNoSubBreeds().map { DogBreedDTO(it) }.toList()
+        if(result.isNotEmpty()){
+            return result
+        }
+        throw throw NoBreedReturnedFromDatabaseException("There were no breeds without sub breeds, returned from database")
     }
 
     suspend fun getOnlySubBreeds(): Iterable<String> {
-        return repository.getOnlySubBreeds().toList()
+        val result = repository.getOnlySubBreeds().toList()
+        if(result.isNotEmpty()){
+            return result
+        }
+        throw throw NoBreedReturnedFromDatabaseException("There were no sub breeds, returned from database")
     }
 
     suspend fun getBreedsSubBreeds(breed: String): Iterable<String> {
-        return repository.getBreedsSubBreeds(breed).toList()
+        if(breed.isNotEmpty()) {
+            val result = repository.getBreedsSubBreeds(breed).toList()
+            if(result.isNotEmpty()){
+                return result
+            }
+            throw throw NoBreedReturnedFromDatabaseException("There were no sub breeds, for given breed, returned from database")
+        }
+        throw IllegalArgumentException("Wrong parameter submitted")
     }
 
     suspend fun getBreedPicture(breed: String): ResponseEntity<ByteArray> {
         val headers = HttpHeaders()
         headers.contentType = MediaType.IMAGE_JPEG
-        val dbBreed = repository.getBreedByName(breed)
+        val dbBreed = repository.getBreedByName(breed) ?: throw IllegalArgumentException("Wrong parameter submitted")
         return if (dbBreed.image!=null) {
             ResponseEntity<ByteArray>(dbBreed.image, headers, HttpStatus.OK)
-        } else
-            ResponseEntity<ByteArray>(
-                apiClient.getBreedPictureFromExternalApiAndSaveNewLinkInDB(breed),
-                headers,
-                HttpStatus.OK
-            )
+        } else {
+            val responseImageFromAPI = apiClient.getBreedPictureFromExternalApiAndSaveNewLinkInDB(breed)
+            if (responseImageFromAPI!=null) {
+                ResponseEntity<ByteArray>(
+                    responseImageFromAPI,
+                    headers,
+                    HttpStatus.OK
+                )
+            }else{
+                throw NoPictureReturnedFromExternalSource("No picture was returned from external api, and nothing was found inside database.")
+            }
+        }
     }
 
     suspend fun saveDogBreed(dogBreed: DogBreedDTO): HttpStatus {
-
-        repository.save(DogBreed(breed = dogBreed.breed, subBreed = dogBreed.subBreed.joinToString(separator = ", "), image = null))
+        try {
+            repository.save(
+                DogBreed(
+                    breed = dogBreed.breed,
+                    subBreed = dogBreed.subBreed.joinToString(separator = ", "),
+                    image = null
+                )
+            )
+        }catch (e: Exception){
+            throw DatabaseSaveException("Error occurred while trying to save entity into database")
+        }
         return HttpStatus.OK
-    }
-
-    suspend fun add(breed: DogBreed){
-        repository.save(breed)
     }
 }
