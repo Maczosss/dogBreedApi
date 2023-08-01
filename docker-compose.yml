@@ -4,11 +4,43 @@ services:
     environment:
       MYSQL_DATABASE: breed_db
       MYSQL_ROOT_PASSWORD: example_pass
+    hostname: db
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u root --password=example_pass #todo, change it
+      interval: 30s
+      timeout: 10s
     ports:
      - "9091:3306"
+    expose:
+      - "9091"
+    networks:
+      - my_network
+
+
   phpMyAdmin:
     image: phpmyadmin
     environment:
       PMA_ARBITRARY: 1
     ports:
       - "9090:80"
+
+
+  dog_breed_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - my_network
+    ports:
+      - "8080:8080"
+    expose:
+      - "8080"
+
+
+networks:
+  my_network:
+    driver: bridge

@@ -14,9 +14,11 @@ import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 
 @SpringBootTest
+@ActiveProfiles("test")
 class DogBreedControllerTests {
 
     private lateinit var webClient: WebTestClient

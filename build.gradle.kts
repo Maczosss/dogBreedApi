@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
 //    id("org.springframework.boot") version "3.1.1"
@@ -41,6 +42,10 @@ dependencies {
 
     implementation("io.springfox:springfox-boot-starter:3.0.0")
 
+    //H2 in memory db used for tests only
+    implementation("io.r2dbc:r2dbc-h2:1.0.0.RELEASE")
+    testImplementation("io.r2dbc:r2dbc-h2:1.0.0.RELEASE")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("io.mockk:mockk:1.13.5")
@@ -55,4 +60,8 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.named<BootJar>("bootJar"){
+    archiveFileName.set("DogBreedAPI.jar")
 }
